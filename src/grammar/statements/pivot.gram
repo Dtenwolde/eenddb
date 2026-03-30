@@ -1,0 +1,24 @@
+PivotStatement <- PivotKeyword TableRef PivotOn? PivotUsing? PivotGroupByList?
+
+PivotOn <- 'OP' PivotColumnList
+PivotUsing <- 'GEBRUIKEN' TargetList
+PivotColumnList <- List(PivotColumnEntry)
+PivotColumnEntry <- PivotColumnSubquery / PivotValueList / PivotColumnEntryInternal
+PivotColumnEntryInternal <- Expression
+PivotColumnSubquery <- BaseExpression 'IN' Parens(SelectStatementInternal)
+
+PivotKeyword <- 'DRAAIEN' / 'DRAAIEN_BREDER'
+UnpivotKeyword <- 'ONTROLLEN' / 'DRAAIEN_LANGER'
+
+UnpivotStatement <- UnpivotKeyword TableRef 'OP' TargetList IntoNameValues?
+
+IntoNameValues <- 'AAN' 'NAAM' ColIdOrString ValueOrValues List(Identifier)
+
+ValueOrValues <- 'WAARDE' / 'WAARDEN'
+
+IncludeOrExcludeNulls <- IncludeNulls / ExcludeNulls
+IncludeNulls <- 'INSLUITEN' 'LEGE_WAARDEN'
+ExcludeNulls <- 'UITSLUITEN' 'LEGE_WAARDEN'
+UnpivotHeader <- UnpivotHeaderSingle / UnpivotHeaderList
+UnpivotHeaderSingle <- ColIdOrString
+UnpivotHeaderList <- Parens(List(ColIdOrString))

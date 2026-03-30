@@ -1,0 +1,20 @@
+CreateSequenceStmt <- 'AANEENVOLGING' IfNotExists? QualifiedName SequenceOption*
+
+SequenceOption <-
+	SeqSetCycle /
+	SeqSetIncrement /
+	SeqSetMinMax /
+	SeqNoMinMax /
+	SeqStartWith /
+	SeqOwnedBy
+
+SeqSetCycle <- 'NEEN'? 'CYCLUS'
+SeqSetIncrement <- 'VERHOGING' 'PER'? Expression
+SeqSetMinMax <- SeqMinOrMax Expression
+SeqNoMinMax <- 'NEEN' SeqMinOrMax
+SeqStartWith <- 'STARTEN' 'MET'? Expression
+SeqOwnedBy <- 'EIGENDOM' 'PER' QualifiedName
+
+SeqMinOrMax <- MinValue / MaxValue
+MinValue <- 'MINIMUMWAARDE'
+MaxValue <- 'MAXIMUMWAARDE'

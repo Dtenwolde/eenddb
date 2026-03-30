@@ -1,0 +1,151 @@
+Statement <-
+	CreateStatement /
+	SelectStatement /
+	SetStatement /
+	PragmaStatement /
+	CallStatement /
+	InsertStatement /
+	DropStatement /
+	CopyStatement /
+	ExplainStatement /
+	UpdateStatement /
+	PrepareStatement /
+	ExecuteStatement /
+	AlterStatement /
+	TransactionStatement /
+	DeleteStatement /
+	AttachStatement /
+	UseStatement /
+	DetachStatement /
+	CheckpointStatement /
+	VacuumStatement /
+	ResetStatement /
+	ExportStatement /
+	ImportStatement /
+	CommentStatement /
+	DeallocateStatement /
+	TruncateStatement /
+	LoadStatement /
+	InstallStatement /
+	AnalyzeStatement /
+	MergeIntoStatement
+
+CatalogName <- Identifier
+SchemaName <- Identifier
+ReservedSchemaName <- Identifier
+TableName <- Identifier
+ReservedTableName <- Identifier
+ReservedIdentifier <- Identifier
+ColumnName <- Identifier
+ReservedColumnName <- Identifier
+IndexName <- Identifier
+SettingName <- Identifier
+PragmaName <- Identifier
+FunctionName <- Identifier
+ReservedFunctionName <- Identifier
+TableFunctionName <- Identifier
+ConstraintName <- ColIdOrString
+SequenceName <- Identifier
+CollationName <- Identifier
+CopyOptionName <- ColLabel
+SecretName <- ColId
+
+NumberLiteral <- < [+-]?[0-9]*([.][0-9]*)? >
+StringLiteral <- '\'' [^\']* '\''
+
+Type <- (TimeType / IntervalType / BitType / RowType / VariantType / MapType / GeometryType / UnionType / NumericType / SetofType / SimpleType) ArrayBounds*
+SimpleType <- (CharacterType / QualifiedTypeName) TypeModifiers?
+CharacterType <- ('KARAKTER' 'VARIABEL'?) /
+                 ('TEKEN' 'VARIABEL'?) /
+                 ('NATIONAAL' 'KARAKTER' 'VARIABEL'?) /
+                 ('NATIONAAL' 'TEKEN' 'VARIABEL'?) /
+                 ('NTEKEN' 'VARIABEL'?) /
+                 'TEKSTREEKS'
+
+IntervalType <- IntervalInterval / IntervalNumber
+IntervalInterval <- 'INTERVAL' Interval?
+IntervalNumber <- 'INTERVAL' Parens(NumberLiteral)
+
+YearKeyword         <- 'JAAR' / 'JAREN'
+MonthKeyword        <- 'MAAND' / 'MAANDEN'
+DayKeyword          <- 'DAG' / 'DAGEN'
+HourKeyword         <- 'UUR' / 'UREN'
+MinuteKeyword       <- 'MINUUT' / 'MINUTEN'
+SecondKeyword       <- 'SECONDE' / 'SECONDEN'
+MillisecondKeyword  <- 'MILLISECONDE' / 'MILLISECONDEN'
+MicrosecondKeyword  <- 'MICROSECONDE' / 'MICROSECONDEN'
+WeekKeyword         <- 'WEEK' / 'WEKEN'
+QuarterKeyword      <- 'KWARTAAL' / 'KWARTALEN'
+DecadeKeyword       <- 'DECENNIUM' / 'DECENNIA'
+CenturyKeyword      <- 'EEUW' / 'EEUWEN'
+MillenniumKeyword   <- 'MILLENNIUM' / 'MILLENNIA'
+
+Interval <- (YearKeyword 'NAAR' MonthKeyword) /
+    (DayKeyword 'NAAR' HourKeyword) /
+    (DayKeyword 'NAAR' MinuteKeyword) /
+    (DayKeyword 'NAAR' SecondKeyword) /
+    (HourKeyword 'NAAR' MinuteKeyword) /
+    (HourKeyword 'NAAR' SecondKeyword) /
+    (MinuteKeyword 'NAAR' SecondKeyword) /
+    YearKeyword /
+    MonthKeyword /
+    DayKeyword /
+    HourKeyword /
+    MinuteKeyword /
+    SecondKeyword /
+    MillisecondKeyword /
+    MicrosecondKeyword /
+    WeekKeyword /
+    QuarterKeyword /
+    DecadeKeyword /
+    CenturyKeyword /
+    MillenniumKeyword
+
+BitType <- 'BIT' 'VARIABEL'? Parens(List(Expression))?
+GeometryType <- 'GEOMETRIE' Parens(Expression)?
+VariantType <- 'VARIANT'
+
+NumericType <- SimpleNumericType / DecimalNumericType
+SimpleNumericType <- IntType / IntegerType / SmallintType /
+                BigintType / RealType / BooleanType / DoubleType
+DecimalNumericType <- FloatType / DecimalType / DecType / NumericModType
+
+IntType <- 'GETAL'
+IntegerType <- 'GEHEEL_GETAL'
+SmallintType <- 'KLEINGETAL'
+BigintType <- 'GROOTGETAL'
+RealType <- 'REEEL'
+BooleanType <- 'BOOLEAN'
+DoubleType <- ('DUBBEL' 'PRECISIE')
+
+FloatType <- 'KOMMAGETAL' Parens(NumberLiteral)?
+DecimalType <- 'DECIMAAL' TypeModifiers?
+DecType <- 'DEC' TypeModifiers?
+NumericModType <- 'NUMERIEK' TypeModifiers?
+
+QualifiedTypeName <- (Identifier '.')* TypeName
+TypeModifiers <- Parens(List(Expression)?)
+RowType <- RowOrStruct ColIdTypeList
+SetofType <- 'VERZAMELING_VAN' Type
+UnionType <- 'UNIE' ColIdTypeList
+ColIdTypeList <- Parens(List(ColIdType))
+MapType <- 'KAART' Parens(List(Type))
+ColIdType <- ColId Type
+ArrayBounds <- SquareBracketsArray / 'REEKS'
+ArrayKeyword <- 'REEKS'
+SquareBracketsArray <- '[' Expression? ']'
+TimeType <- TimeOrTimestamp TypeModifiers? TimeZone?
+TimeOrTimestamp <- TimeTypeId / TimestampTypeId
+TimeTypeId <- 'TIJD'
+TimestampTypeId <- 'TIJDSTEMPEL'
+TimeZone <- WithOrWithout 'TIJD' 'ZONE'
+WithOrWithout <- WithRule / WithoutRule
+WithRule <- 'MET'
+WithoutRule <- 'ZONDER'
+
+RowOrStruct <- 'RIJ' / 'STRUCTUUR'
+
+# internal definitions
+%whitespace <- [ \t\n\r]*
+List(D) <- D (',' D)* ','?
+Parens(D) <- '(' D ')'

@@ -1,0 +1,29 @@
+InsertStatement <- WithClause? 'TOEVOEGEN' OrAction? 'AAN' InsertTarget ByNameOrPosition? InsertColumnList? InsertValues OnConflictClause? ReturningClause?
+
+OrAction <- 'OF' 'VERVANGEN' / 'NEGEREN'
+ByNameOrPosition <- 'PER' InsertByName / InsertByPosition
+InsertByName <- 'NAAM'
+InsertByPosition <- 'POSITIE'
+
+InsertTarget <- BaseTableName InsertAlias?
+InsertAlias <- 'ALS' Identifier
+
+ColumnList <- List(ColId)
+InsertColumnList <- Parens(ColumnList)
+
+InsertValues <- SelectStatementInternal / DefaultValues
+DefaultValues <- 'STANDAARD' 'WAARDEN'
+
+OnConflictClause <- 'OP' 'CONFLICT' OnConflictTarget? OnConflictAction
+
+OnConflictTarget <- OnConflictExpressionTarget / OnConflictIndexTarget
+OnConflictExpressionTarget <- ColumnIdList WhereClause?
+OnConflictIndexTarget <- 'OP' 'BEPERKING' ConstraintName
+
+
+OnConflictAction <- OnConflictUpdate / OnConflictNothing
+
+OnConflictUpdate <- 'DOE' 'BIJWERKEN' 'INSTELLEN' UpdateSetClause WhereClause?
+OnConflictNothing <- 'DOE' 'NIETS'
+
+ReturningClause <- 'GEEF_TERUG' TargetList

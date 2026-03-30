@@ -1,0 +1,252 @@
+ColumnReference <- CatalogReservedSchemaTableColumnName / SchemaReservedTableColumnName / TableReservedColumnName / NestedColumnName
+CatalogReservedSchemaTableColumnName <- CatalogQualification ReservedSchemaQualification ReservedTableQualification ReservedColumnName
+SchemaReservedTableColumnName <- SchemaQualification ReservedTableQualification ReservedColumnName
+TableReservedColumnName <- TableQualification ReservedColumnName
+FunctionExpression <- FunctionIdentifier Parens(DistinctOrAll? List(FunctionArgument)? OrderByClause? IgnoreOrRespectNulls?) WithinGroupClause? FilterClause? ExportClause? OverClause?
+
+FunctionIdentifier <- CatalogReservedSchemaFunctionName / SchemaReservedFunctionName / FunctionName
+CatalogReservedSchemaFunctionName <- CatalogQualification ReservedSchemaQualification? ReservedFunctionName
+SchemaReservedFunctionName <- SchemaQualification ReservedFunctionName
+
+DistinctOrAll <- 'APART' / 'ALLE'
+ExportClause <- 'EXPORTEREN_TOESTAND'
+WithinGroupClause <- 'BINNEN' 'GROEP' Parens(OrderByClause)
+FilterClause <- 'FILTER' Parens('WAARBIJ'? Expression)
+IgnoreOrRespectNulls <- IgnoreNulls / RespectNulls
+IgnoreNulls <- 'NEGEREN' 'LEGE_WAARDEN'
+RespectNulls <- 'RESPECTEREN' 'LEGE_WAARDEN'
+
+ParenthesisExpression <- Parens(List(Expression))
+LiteralExpression <- StringLiteral / NumberLiteral / ConstantLiteral
+ConstantLiteral <- NullLiteral / TrueLiteral / FalseLiteral
+NullLiteral <- 'LEEG'
+TrueLiteral <- 'WAAR'
+FalseLiteral <- 'ONWAAR'
+CastExpression <- CastOrTryCast Parens(Expression 'ALS' Type)
+CastOrTryCast <- 'OMZETTEN' / 'PROBEER_OMZETTEN'
+
+StarExpression <- (ColId '.')* '*' ExcludeList? ReplaceList? RenameList?
+ExcludeList <- 'UITSLUITEN' ExcludeNameList / ExcludeNameSingle
+ExcludeNameList <- Parens(List(ExcludeName))
+ExcludeNameSingle <- ExcludeName
+ExcludeName <- DottedIdentifier / ColIdOrString
+ReplaceList <- 'VERVANGEN' ReplaceEntries
+ReplaceEntries <- ReplaceEntrySingle / ReplaceEntryList
+ReplaceEntrySingle <- ReplaceEntry
+ReplaceEntryList <- Parens(List(ReplaceEntry))
+ReplaceEntry <- Expression 'ALS' ColumnReference
+RenameList <- 'HERNOEMEN' (RenameEntryList / SingleRenameEntry)
+RenameEntryList <- Parens(List(RenameEntry))
+SingleRenameEntry <- RenameEntry
+RenameEntry <- ExcludeName 'ALS' Identifier
+SubqueryExpression <- 'NIET'? 'BESTAAT'? SubqueryReference
+CaseExpression <- 'GEVAL' Expression? CaseWhenThen+ CaseElse? 'EINDE'
+CaseWhenThen <- 'WANNEER' Expression 'DAN' Expression
+CaseElse <- 'ANDERS' Expression
+TypeLiteral <- ColId StringLiteral
+IntervalLiteral <- 'INTERVAL' IntervalParameter Interval?
+IntervalParameter <- StringLiteral / NumberLiteral / ParensExpression
+FrameClause <- Framing FrameExtent WindowExcludeClause?
+Framing <- 'RIJEN' / 'BEREIK' / 'GROEPEN'
+FrameExtent <- BetweenFrameExtent / SingleFrameExtent
+SingleFrameExtent <- FrameBound
+BetweenFrameExtent <- 'TUSSEN' FrameBound 'EN' FrameBound
+FrameBound <- FrameUnbounded / FrameCurrentRow / FrameExpression
+FrameUnbounded <- 'ONBEGRENSD' PrecedingOrFollowing
+FrameExpression <- Expression PrecedingOrFollowing
+FrameCurrentRow <- 'HUIDIG' 'RIJ'
+PrecedingOrFollowing <- 'VOORAFGAAND' / 'VOLGEND'
+WindowExcludeClause <- 'UITSLUITEN' WindowExcludeElement
+WindowExcludeElement <- ExcludeCurrentRow / ExcludeGroup / ExcludeTies / ExcludeNoOthers
+ExcludeCurrentRow <- 'HUIDIG' 'RIJ'
+ExcludeGroup <- 'GROEP'
+ExcludeTies <- 'GELIJKSPEL'
+ExcludeNoOthers <- 'NEEN' 'ANDEREN'
+OverClause <- 'OVER' WindowFrame
+WindowFrame <- ParensIdentifier / WindowFrameDefinition / Identifier
+ParensIdentifier <- Parens(Identifier)
+WindowFrameDefinition <- WindowFrameNameContentsParens / WindowFrameContentsParens
+WindowFrameNameContentsParens <- Parens(BaseWindowName? WindowFrameContents)
+WindowFrameContentsParens <- Parens(WindowFrameContents)
+WindowFrameContents <- WindowPartition? OrderByClause? FrameClause?
+BaseWindowName <- Identifier
+WindowPartition <- 'PARTITIE' 'PER' List(Expression)
+ListExpression <- ArrayBoundedListExpression / ArrayParensSelect
+ArrayBoundedListExpression <- 'REEKS'? BoundedListExpression
+ArrayParensSelect <- 'REEKS' Parens(SelectStatementInternal)
+BoundedListExpression <- '[' List(Expression)? ']'
+StructExpression <- '{' List(StructField) '}'
+StructField <- ColIdOrString ':' Expression
+MapExpression <- 'KAART' MapStructExpression
+MapStructExpression <- '{' List(MapStructField)? '}'
+MapStructField <- Expression ':' Expression
+
+GroupingExpression <- GroupingOrGroupingId Parens(List(Expression))
+GroupingOrGroupingId <- 'GROEPERING' / 'GROEPERING_ID'
+Parameter <- AnonymousParameter / NumberedParameter / ColLabelParameter
+AnonymousParameter <- '?'
+NumberedParameter <- '$' NumberLiteral
+ColLabelParameter <- '$' ColLabel
+PositionalExpression <- '#' NumberLiteral
+DefaultExpression <- 'STANDAARD'
+
+ListComprehensionExpression <- '[' Expression 'VOOR' List(ColIdOrString) 'IN' Expression ListComprehensionFilter? ']'
+ListComprehensionFilter <- 'INDIEN' Expression
+
+ParensExpression <- Parens(Expression)
+
+SingleExpression <-
+    ParensExpression /
+	LiteralExpression /
+	Parameter /
+    SubqueryExpression /
+    SpecialFunctionExpression /
+    ParenthesisExpression /
+    IntervalLiteral /
+    TypeLiteral /
+    CaseExpression /
+    StarExpression /
+    CastExpression /
+    GroupingExpression /
+    MapExpression /
+    FunctionExpression /
+    ColumnReference /
+    ListComprehensionExpression /
+    ListExpression /
+    StructExpression /
+    PositionalExpression /
+    DefaultExpression
+
+# LEVEL 1 (Lowest)
+Expression <- LambdaArrowExpression
+# LEVEL 1.5
+LambdaArrowExpression <- LogicalOrExpression (LambdaOperator LogicalOrExpression)*
+LambdaOperator <- '->'
+LogicalOrExpression <- LogicalAndExpression ('OF' LogicalAndExpression)*
+# LEVEL 2
+LogicalAndExpression <- LogicalNotExpression ('EN' LogicalNotExpression)*
+# LEVEL 3
+LogicalNotExpression <- 'NIET'* IsExpression
+# LEVEL 4
+IsExpression <- IsDistinctFromExpression IsTest*
+IsTest <- IsLiteral / NotNull / IsNull
+IsLiteral <- 'IS' 'NIET'? (TrueLiteral / FalseLiteral / NullLiteral / UnknownLiteral)
+UnknownLiteral <- 'ONBEKEND'
+NotNull <- ('NIET' 'LEEG') / 'IS_NIET_LEEG'
+IsNull <- 'IS_LEEG'
+# LEVEL 5 (Split because IsDistinctFromExpression allows post expression while IsOperator does not)
+IsDistinctFromExpression <- ComparisonExpression (IsDistinctFromOp ComparisonExpression)*
+IsDistinctFromOp <- 'IS' 'NIET'? 'APART' 'VAN'
+# LEVEL 6
+ComparisonExpression <- BetweenInLikeExpression (ComparisonOperator 'NIET'* BetweenInLikeExpression)*
+ComparisonOperator <-
+    OperatorEqual /
+    OperatorNotEqual /
+    OperatorLessThan /
+    OperatorGreaterThan /
+    OperatorLessThanEquals /
+    OperatorGreaterThanEquals
+
+OperatorEqual <- '=' / '=='
+OperatorNotEqual <- '!=' / '<>'
+OperatorLessThan <- '<'
+OperatorGreaterThan <- '>'
+OperatorLessThanEquals <- '<='
+OperatorGreaterThanEquals <- '>='
+# LEVEL 7
+BetweenInLikeExpression <- OtherOperatorExpression BetweenInLikeOp?
+BetweenInLikeOp <- 'NIET'? (BetweenClause / InClause / LikeClause)
+LikeClause <- LikeVariations OtherOperatorExpression EscapeClause?
+EscapeClause <- 'ONTSNAPPEN' Expression
+
+LikeVariations <- SimilarToToken / ILikeToken / LikeToken / GlobToken / NotILikeOp / NotLikeOp / NotSimilarToOp
+LikeToken      <- 'ZOALS' / '~~'
+ILikeToken     <- 'VERGELIJKBAAR_HOOFDLETTERONGEVOELIG' / '~~*'
+GlobToken      <- 'PATROON' / '~~~'
+SimilarToToken <- ('VERGELIJKBAAR' 'NAAR') / '~'
+NotILikeOp     <- '!~~*'
+NotLikeOp      <- '!~~'
+NotSimilarToOp <- '!~'
+
+InClause <- 'IN' InExpression
+InExpression <- InExpressionList / InSelectStatement / OtherOperatorExpression
+InExpressionList <- Parens(List(Expression))
+InSelectStatement <- Parens(SelectStatementInternal)
+BetweenClause <- 'TUSSEN' OtherOperatorExpression 'EN' OtherOperatorExpression
+# LEVEL 8
+OtherOperatorExpression <- BitwiseExpression (OtherOperator BitwiseExpression)*
+OtherOperator <-
+    QualifiedOperator / AnyAllOperator / InetOperator / JsonOperator / ListOperator / StringOperator
+AnyAllOperator <- ComparisonOperator AnyOrAll
+AnyOrAll <- SubqueryAny / SubqueryAll
+SubqueryAny <- 'ENIGE'
+SubqueryAll <- 'ALLE'
+InetOperator <- '>>=' / '<<='
+JsonOperator <- '->>'
+ListOperator <- '&&' / '@>' / '<@'
+StringOperator <- '^@' / '||'
+QualifiedOperator <- 'OPERATOR' Parens(AnyOp)
+AnyOp <- '!~~*' / '>>=' / '<<=' / '->>' / '!~~' / '~~*' / '~~~' / '!~' / '^@' / '||' / '&&' / '@>' / '<@' / '<=' / '>=' / '<>' / '!=' / '==' / '<<' / '>>' / '//' / '**' / '->' / '~~' / '+' / '-' / '*' / '/' / '%' / '^' / '<' / '>' / '=' / '&' / '|' / '~' / '!'
+# LEVEL 9
+BitwiseExpression <- AdditiveExpression (BitOperator AdditiveExpression)*
+BitOperator <- '&' / '|' / '<<' / '>>'
+# LEVEL 10
+AdditiveExpression <- MultiplicativeExpression (Term MultiplicativeExpression)*
+Term <- '+' / '-'
+# LEVEL 11
+MultiplicativeExpression <- ExponentiationExpression (Factor ExponentiationExpression)*
+Factor <- '*' / '/' / '//' / '%'
+# LEVEL 12
+ExponentiationExpression <- CollateExpression (ExponentOperator CollateExpression)*
+ExponentOperator <- '^' / '**'
+# LEVEL 13
+CollateExpression <- AtTimeZoneExpression (CollateOperator AtTimeZoneExpression)*
+CollateOperator <- 'SORTERING'
+# LEVEL 14
+AtTimeZoneExpression <- PrefixExpression (AtTimeZoneOperator PrefixExpression)*
+AtTimeZoneOperator <- 'BIJ' 'TIJD' 'ZONE'
+# LEVEL 15
+PrefixExpression <- PrefixOperator* BaseExpression
+PrefixOperator <- QualifiedOperator / MinusPrefixOperator / PlusPrefixOperator / TildePrefixOperator
+MinusPrefixOperator <- '-'
+PlusPrefixOperator <- '+'
+TildePrefixOperator <- '~'
+# LEVEL 16 (Highest)
+BaseExpression <- SingleExpression Indirection*
+
+Indirection <- CastOperator / DotOperator / SliceExpression / PostfixOperator
+CastOperator <- '::' Type
+DotOperator <- '.' (MethodExpression / ColLabel)
+MethodExpression <- ColLabel Parens(DistinctOrAll? List(FunctionArgument)? OrderByClause? IgnoreOrRespectNulls?)
+SliceExpression <- '[' SliceBound ']'
+SliceBound <- Expression? EndSliceBound? StepSliceBound?
+EndSliceBound <- ':' (Expression / '-')?
+StepSliceBound <- ':' Expression?
+PostfixOperator <- '!'
+
+
+SpecialFunctionExpression <- CoalesceExpression / UnpackExpression / TryExpression / ColumnsExpression / ExtractExpression / LambdaExpression / NullIfExpression / PositionExpression / RowExpression / SubstringExpression / TrimExpression
+CoalesceExpression <- 'VERBINDEN' Parens(List(Expression))
+UnpackExpression <- 'UITVOUWEN' Parens(Expression)
+TryExpression <- 'TRY' Parens(Expression)
+ColumnsExpression <- '*'? 'KOLOMMEN' Parens(Expression)
+ExtractExpression <- 'UITPAKKEN' Parens(ExtractArgument 'VAN' Expression)
+LambdaExpression <- 'LAMBDA' List(ColIdOrString) ':' Expression
+NullIfExpression <- 'LEEGALS' Parens(Expression ',' Expression)
+PositionExpression <- 'POSITIE' Parens(SingleExpression 'IN' SingleExpression)
+RowExpression <- 'RIJ' Parens(List(Expression)?)
+SubstringExpression <- 'DEELREEKS' Parens(SubstringArguments)
+SubstringArguments <- SubstringParameters / SubstringExpressionList
+SubstringExpressionList <- List(Expression)
+SubstringParameters <- Expression 'VAN' Expression 'VOOR' Expression
+TrimExpression <- 'BIJKNIPPEN' Parens(TrimDirection? TrimSource? List(Expression))
+TrimDirection <- TrimBoth / TrimLeading / TrimTrailing
+TrimBoth <- 'BEIDE'
+TrimLeading <- 'VOORAAN'
+TrimTrailing <- 'ACHTERAAN'
+TrimSource <- Expression? 'VAN'
+
+ExtractArgument <-
+    YearKeyword / MonthKeyword / DayKeyword / HourKeyword / MinuteKeyword / SecondKeyword /
+    MillisecondKeyword / MicrosecondKeyword / WeekKeyword / QuarterKeyword / DecadeKeyword /
+    CenturyKeyword / MillenniumKeyword / Identifier / StringLiteral

@@ -1,0 +1,19 @@
+SetStatement <- 'INSTELLEN' (StandardAssignment / SetTimeZone)
+
+StandardAssignment <- (SetVariable / SetSetting) SetAssignment
+SetTimeZone <- 'TIJD' 'ZONE' Expression
+SetSetting <- SettingScope? SettingName
+SetVariable <- VariableScope Identifier
+VariableScope <- 'VARIABELE'
+
+SettingScope <- LocalScope / SessionScope / GlobalScope
+LocalScope <- 'LOKAAL'
+SessionScope <- 'SESSIE'
+GlobalScope <- 'GLOBAAL'
+
+SetAssignment <- VariableAssign VariableList
+
+VariableAssign <- '=' / 'NAAR'
+VariableList <- List(Expression)
+
+ResetStatement <- 'HERSTELLEN' (SetVariable / SetSetting)

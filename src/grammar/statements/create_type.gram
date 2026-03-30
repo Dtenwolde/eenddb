@@ -1,0 +1,4 @@
+CreateTypeStmt <- 'TYPE' IfNotExists? QualifiedName 'ALS' CreateType
+CreateType <- EnumSelectType / EnumStringLiteralList / Type
+EnumSelectType <- 'OPSOMMING' Parens(SelectStatementInternal)
+EnumStringLiteralList <- 'OPSOMMING' Parens(List(StringLiteral)?)

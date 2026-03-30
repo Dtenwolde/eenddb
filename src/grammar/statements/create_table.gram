@@ -1,0 +1,82 @@
+CreateStatement <- 'MAAK' OrReplace? Temporary? CreateStatementVariation
+CreateStatementVariation <- CreateTableStmt / CreateMacroStmt / CreateSequenceStmt / CreateTypeStmt / CreateSchemaStmt / CreateViewStmt / CreateIndexStmt / CreateSecretStmt
+OrReplace <- 'OF' 'VERVANGEN'
+Temporary <- Persistent / TempPersistent / TemporaryPersistent
+Persistent <- 'PERSISTENT'
+TempPersistent <- 'TIJDELIJK'
+TemporaryPersistent <- 'VOORLOPIG'
+
+CreateTableStmt <- 'TABEL' IfNotExists? QualifiedName (CreateTableAs / CreateColumnList) CommitAction?
+
+CreateTableAs <- IdentifierList? PartitionSortedOptions? WithList? 'ALS' SelectStatementInternal WithData?
+PartitionSortedOptions <- PartitionOptSortedOptions / SortedOptPartitionOptions
+PartitionOptSortedOptions <- PartitionOptions SortedOptions?
+SortedOptPartitionOptions <- SortedOptions PartitionOptions?
+PartitionOptions <- 'GEPARTITIONEERD' 'PER' Parens(List(Expression))
+SortedOptions <- 'GESORTEERD' 'PER' Parens(List(Expression))
+
+WithData <- 'MET' 'NEEN'? 'GEGEVENS'
+IdentifierList <- Parens(List(Identifier))
+CreateColumnList <- Parens(CreateTableColumnList) PartitionSortedOptions? WithList?
+IfNotExists <- 'INDIEN' 'NIET' 'BESTAAT'
+QualifiedName <- CatalogReservedSchemaIdentifier / SchemaReservedIdentifierOrStringLiteral / IdentifierOrStringLiteral
+SchemaReservedIdentifierOrStringLiteral <- SchemaQualification ReservedIdentifierOrStringLiteral
+CatalogReservedSchemaIdentifier <- CatalogQualification ReservedSchemaQualification ReservedIdentifierOrStringLiteral
+IdentifierOrStringLiteral <- Identifier / StringLiteral
+ReservedIdentifierOrStringLiteral <- ReservedIdentifier / StringLiteral
+CatalogQualification <- CatalogName '.'
+SchemaQualification <- SchemaName '.'
+ReservedSchemaQualification <- ReservedSchemaName '.'
+TableQualification <- TableName '.'
+ReservedTableQualification <- ReservedTableName '.'
+
+CreateTableColumnList <- List(CreateTableColumnElement)
+CreateTableColumnElement <- ColumnDefinition / TopLevelConstraint
+ColumnDefinition <- DottedIdentifier Type? GeneratedColumn? ConstraintNameClause? ColumnConstraint*
+ColumnConstraint <- NotNullConstraint / UniqueConstraint / PrimaryKeyConstraint / DefaultValue / CheckConstraint / ForeignKeyConstraint / ColumnCollation / ColumnCompression
+NotNullConstraint <- 'NIET'? 'LEEG'
+UniqueConstraint <- 'UNIEK'
+PrimaryKeyConstraint <- 'PRIMAIR' 'SLEUTEL'
+DefaultValue <- 'STANDAARD' Expression
+CheckConstraint <- 'CONTROLEER' Parens(Expression)
+ForeignKeyConstraint <- 'VERWIJZINGEN' BaseTableName Parens(ColumnList)? KeyActions
+ColumnCollation <- 'SORTERING' DottedIdentifier
+ColumnCompression <- 'GEBRUIKEN' 'COMPRESSIE' ColIdOrString
+
+KeyActions <- UpdateAction? DeleteAction?
+UpdateAction <- 'OP' 'BIJWERKEN' KeyAction
+DeleteAction <- 'OP' 'VERWIJDEREN' KeyAction
+KeyAction <- NoKeyAction / RestrictKeyAction / CascadeKeyAction / SetNullKeyAction / SetDefaultKeyAction
+NoKeyAction <- 'NEEN' 'ACTIE'
+RestrictKeyAction <- 'BEPERKEN'
+CascadeKeyAction <- 'CASCADE'
+SetNullKeyAction <- 'INSTELLEN' 'LEEG'
+SetDefaultKeyAction <- 'INSTELLEN' 'STANDAARD'
+
+TopLevelConstraint <- ConstraintNameClause? TopLevelConstraintList
+TopLevelConstraintList <- TopPrimaryKeyConstraint / CheckConstraint / TopUniqueConstraint / TopForeignKeyConstraint
+ConstraintNameClause <- 'BEPERKING' Identifier
+TopPrimaryKeyConstraint <- 'PRIMAIR' 'SLEUTEL' ColumnIdList
+TopUniqueConstraint <- 'UNIEK' ColumnIdList
+TopForeignKeyConstraint <- 'VREEMD' 'SLEUTEL' ColumnIdList ForeignKeyConstraint
+ColumnIdList <- Parens(List(ColId))
+
+PlainIdentifier <- !ReservedKeyword <[a-z_]i[a-z0-9_]i*>
+QuotedIdentifier <- '"' [^"]* '"'
+DottedIdentifier <- Identifier ('.' Identifier)*
+Identifier <- QuotedIdentifier / PlainIdentifier
+
+ColId <- UnreservedKeyword / ColumnNameKeyword / Identifier
+ColIdOrString <- ColId / StringLiteral
+TypeFuncName <- UnreservedKeyword / TypeNameKeyword / FuncNameKeyword / Identifier
+TypeName <- UnreservedKeyword / TypeNameKeyword / Identifier
+ColLabel <- ReservedKeyword / UnreservedKeyword / ColumnNameKeyword / FuncNameKeyword / TypeNameKeyword / Identifier
+ColLabelOrString <- ColLabel / StringLiteral
+GeneratedColumn <- Generated? 'ALS' Parens(Expression) GeneratedColumnType?
+
+Generated <- 'GEGENEREERD' AlwaysOrByDefault?
+AlwaysOrByDefault <- 'ALTIJD' / ('PER' 'STANDAARD')
+GeneratedColumnType <- 'VIRTUEEL' / 'OPGESLAGEN'
+
+CommitAction <- 'OP' 'VASTLEGGEN' PreserveOrDelete 'RIJEN'
+PreserveOrDelete <- 'BEWAREN' / 'VERWIJDEREN'

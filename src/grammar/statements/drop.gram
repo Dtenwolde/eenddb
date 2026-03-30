@@ -1,0 +1,34 @@
+DropStatement <- 'GOOI_WEG' DropEntries DropBehavior?
+
+DropEntries <-
+	DropTable /
+	DropTableFunction /
+	DropFunction /
+	DropSchema /
+	DropIndex /
+	DropSequence /
+	DropCollation /
+	DropType /
+	DropSecret
+
+DropTable <- TableOrView IfExists? List(BaseTableName)
+DropTableFunction <- CommentMacroTable IfExists? List(TableFunctionName)
+DropFunction <- FunctionType IfExists? List(FunctionIdentifier)
+DropSchema <- 'SCHEMA' IfExists? List(QualifiedSchemaName)
+DropIndex <- 'INDEX' IfExists? List(QualifiedIndexName)
+QualifiedIndexName <- CatalogQualification? SchemaQualification? IndexName
+DropSequence <- 'AANEENVOLGING' IfExists? List(QualifiedSequenceName)
+DropCollation <- 'SORTEERVOLGORDE' IfExists? List(CollationName)
+DropType <- 'TYPE' IfExists? List(QualifiedTypeName)
+DropSecret <- Temporary? 'GEHEIM' IfExists? SecretName DropSecretStorage?
+
+TableOrView <- CommentTable / CommentView / MaterializedViewEntry
+MaterializedViewEntry <- 'GEMATERIALISEERD' 'WEERGAVE'
+FunctionType <- 'MACRO' / 'FUNCTIE'
+
+DropBehavior <- 'CASCADE' / 'BEPERKEN'
+
+IfExists <- 'INDIEN' 'BESTAAT'
+QualifiedSchemaName <- CatalogQualification? SchemaName
+
+DropSecretStorage <- 'VAN' Identifier

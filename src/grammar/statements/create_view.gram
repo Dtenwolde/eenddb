@@ -1,0 +1,1 @@
+CreateViewStmt <- 'RECURSIEF'? 'WEERGAVE' IfNotExists? QualifiedName InsertColumnList? 'ALS' SelectStatementInternal

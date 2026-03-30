@@ -1,0 +1,4 @@
+LoadStatement <- 'LADEN' ColIdOrString
+InstallStatement <- 'FORCEREN'? 'INSTALLEREN' IdentifierOrStringLiteral FromSource? VersionNumber?
+FromSource <- 'VAN' (Identifier / StringLiteral)
+VersionNumber <- Identifier

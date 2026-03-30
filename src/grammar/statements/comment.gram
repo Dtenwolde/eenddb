@@ -1,0 +1,18 @@
+CommentStatement <- 'OPMERKING' 'OP' CommentOnType DottedIdentifier 'IS' CommentValue
+
+CommentOnType <-    CommentTable / CommentSequence / CommentFunction / CommentMacroTable / CommentMacro /
+                    CommentView / CommentDatabase / CommentIndex / CommentSchema / CommentType / CommentColumn
+
+CommentTable <- 'TABEL'
+CommentSequence <- 'AANEENVOLGING'
+CommentFunction <- 'FUNCTIE'
+CommentMacroTable <- 'MACRO' 'TABEL'
+CommentMacro <- 'MACRO'
+CommentView <- 'WEERGAVE'
+CommentDatabase <- 'DATABASE'
+CommentIndex <- 'INDEX'
+CommentSchema <- 'SCHEMA'
+CommentType <- 'TYPE'
+CommentColumn <- 'KOLOM'
+
+CommentValue <- 'LEEG' / StringLiteral

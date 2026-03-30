@@ -1,0 +1,38 @@
+CopyStatement <- 'KOPIEREN' (CopyTable / CopySelect / CopyFromDatabase)
+
+CopyTable <- BaseTableName InsertColumnList? FromOrTo CopyFileName CopyOptions?
+FromOrTo <- 'VAN' / 'NAAR'
+
+CopySelect <- Parens(SelectStatementInternal) 'NAAR' CopyFileName CopyOptions?
+
+CopyFileName <- Parameter / ParensExpression / StringLiteral / Identifier / (Identifier '.' ColId)
+CopyOptions <- 'MET'? GenericCopyOptionList / SpecializedOptionList
+SpecializedOptionList <- SpecializedOption*
+SpecializedOption <- SingleOption / NullAsOption / DelimiterAsOption / EscapeAsOption /
+	EncodingOption / QuoteAsOption / ForceQuoteOption / PartitionByOption / ForceNullOption
+
+SingleOption <- BinaryOption / FreezeOption / OidsOption / CsvOption / HeaderOption
+BinaryOption <- 'BINAIR'
+FreezeOption <- 'BEVRIEZEN'
+OidsOption <- 'OIDS'
+CsvOption <- 'CSV'
+HeaderOption <- 'KOPTEKST'
+NullAsOption <- 'LEEG' 'ALS'? StringLiteral
+DelimiterAsOption <- 'SCHEIDINGSTEKEN' 'ALS'? StringLiteral
+QuoteAsOption <- 'AANHALINGSTEKEN' 'ALS'? StringLiteral
+EscapeAsOption <- 'ONTSNAPPEN' 'ALS'? StringLiteral
+EncodingOption <- 'CODERING' StringLiteral
+ForceQuoteOption <- 'FORCEREN'? 'AANHALINGSTEKEN' (StarSymbol / ColumnList)
+PartitionByOption <- 'PARTITIE' 'PER' (StarSymbol / ColumnList)
+ForceNullOption <- 'FORCEREN' 'NIET'? 'LEEG' ColumnList
+StarSymbol <- '*'
+
+GenericCopyOptionList <- Parens(List(GenericCopyOption))
+GenericCopyOption <- CopyOptionName Expression?
+
+CopyFromDatabase <- 'VAN' 'DATABASE' ColId 'NAAR' ColId CopyDatabaseFlag?
+
+CopyDatabaseFlag <- Parens(SchemaOrData)
+SchemaOrData <- CopySchema / CopyData
+CopySchema <- 'SCHEMA'
+CopyData <- 'GEGEVENS'

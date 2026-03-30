@@ -1,0 +1,2 @@
+AnalyzeStatement <- 'ANALYSEER' 'UITGEBREID'? AnalyzeTarget?
+AnalyzeTarget <- BaseTableName NameList?

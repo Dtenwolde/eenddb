@@ -1,0 +1,15 @@
+CreateIndexStmt <- Unique? 'INDEX' IfNotExists? IndexName? 'OP' BaseTableName InsertColumnList? IndexType? Parens(List(IndexElement))? WithList? WhereClause?
+
+WithList <- 'MET' RelOptionOrOids
+RelOptionOrOids <- RelOptionList / Oids
+RelOptionList <- Parens(List(RelOption))
+Oids <- ('MET' / 'ZONDER') 'OIDS'
+IndexElement <- Expression DescOrAsc? NullsFirstOrLast?
+Unique <- 'UNIEK'
+IndexType <- 'GEBRUIKEN' Identifier
+RelOption <- RelOptionName RelOptionArgumentOpt?
+RelOptionName <- DottedIdentifier / StringLiteral
+RelOptionArgumentOpt <- '=' DefArg
+DefArg <- NullLiteral / ReservedKeyword / StringLiteral / NumberLiteral / NoneLiteral / Expression
+ReservedKeywordValue <- ReservedKeyword
+NoneLiteral <- 'GEEN'

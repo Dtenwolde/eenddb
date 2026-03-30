@@ -1,0 +1,48 @@
+AlterStatement <- 'WIJZIGEN' AlterOptions
+
+AlterOptions <- AlterTableStmt / AlterViewStmt / AlterSequenceStmt / AlterDatabaseStmt / AlterSchemaStmt
+
+AlterTableStmt <- 'TABEL' IfExists? BaseTableName AlterTableOptions
+AlterSchemaStmt <- 'SCHEMA' IfExists? QualifiedName RenameAlter
+
+AlterTableOptions <- AddColumn / DropColumn / AlterColumn / AddConstraint / ChangeNullability /
+        RenameColumn / RenameAlter / SetPartitionedBy / ResetPartitionedBy / SetSortedBy / ResetSortedBy / SetOptions / ResetOptions
+
+AddConstraint <- 'BIJVOEGEN' TopLevelConstraint
+AddColumn <- 'BIJVOEGEN' 'KOLOM'? IfNotExists? AddColumnEntry
+AddColumnEntry <- DottedIdentifier Type? GeneratedColumn? ColumnConstraint*
+DropColumn <- 'GOOI_WEG' 'KOLOM'? IfExists? NestedColumnName DropBehavior?
+AlterColumn <- 'WIJZIGEN' 'KOLOM'? NestedColumnName AlterColumnEntry
+RenameColumn <- 'HERNOEMEN' 'KOLOM'? NestedColumnName 'NAAR' Identifier
+NestedColumnName <- (Identifier '.')* ColumnName
+RenameAlter <- 'HERNOEMEN' 'NAAR' Identifier
+SetPartitionedBy <- 'INSTELLEN' 'GEPARTITIONEERD' 'PER' Parens(List(Expression))
+ResetPartitionedBy <- 'HERSTELLEN' 'GEPARTITIONEERD' 'PER'
+SetSortedBy <- 'INSTELLEN' 'GESORTEERD' 'PER' Parens(OrderByExpressions)
+ResetSortedBy <- 'HERSTELLEN' 'GESORTEERD' 'PER'
+SetOptions <- 'INSTELLEN' RelOptionList
+ResetOptions <- 'HERSTELLEN' RelOptionList
+
+AlterColumnEntry <- AddOrDropDefault / ChangeNullability / AlterType
+
+AddOrDropDefault <- AddDefault / DropDefault
+AddDefault <- 'INSTELLEN' 'STANDAARD' Expression
+DropDefault <- 'GOOI_WEG' 'STANDAARD'
+
+ChangeNullability <- DropOrSet 'NIET' 'LEEG'
+DropOrSet <- 'GOOI_WEG' / 'INSTELLEN'
+
+AlterType <- SetData? 'TYPE' Type? UsingExpression?
+SetData <- 'INSTELLEN' 'GEGEVENS'?
+UsingExpression <- 'GEBRUIKEN' Expression
+
+AlterViewStmt <- 'WEERGAVE' IfExists? BaseTableName RenameAlter
+
+AlterSequenceStmt <- 'AANEENVOLGING' IfExists? QualifiedSequenceName AlterSequenceOptions
+
+QualifiedSequenceName <- CatalogQualification? SchemaQualification? SequenceName
+
+AlterSequenceOptions <- RenameAlter / SetSequenceOption
+SetSequenceOption <- List(SequenceOption)
+
+AlterDatabaseStmt <- 'DATABASE' IfExists? Identifier 'INSTELLEN' 'ALIAS' 'NAAR' Identifier

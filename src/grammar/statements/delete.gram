@@ -1,0 +1,4 @@
+DeleteStatement <- WithClause? 'VERWIJDEREN' 'VAN' TargetOptAlias DeleteUsingClause? WhereClause? ReturningClause?
+TruncateStatement <- 'AFKAPPEN' 'TABEL'? BaseTableName
+TargetOptAlias <- BaseTableName 'ALS'? ColId?
+DeleteUsingClause <- 'GEBRUIKEN' List(TableRef)
