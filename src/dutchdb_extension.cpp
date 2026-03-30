@@ -121,7 +121,7 @@ void DutchdbExtension::Load(ExtensionLoader &loader) {
 }
 
 std::string DutchdbExtension::Name() {
-	return "dutchdb";
+	return "eenddb";
 }
 
 std::string DutchdbExtension::Version() const {
