@@ -6,7 +6,7 @@ namespace duckdb {
 
 class SequenceOption {
 public:
-	SequenceOption(SequenceInfo type_p) : type(type_p) {
+	explicit SequenceOption(SequenceInfo type_p) : type(type_p) {
 	}
 
 public:
@@ -15,7 +15,7 @@ public:
 
 class ValueSequenceOption : public SequenceOption {
 public:
-	ValueSequenceOption(SequenceInfo type, Value value_p) : SequenceOption(type), value(value_p) {
+	ValueSequenceOption(SequenceInfo type, const Value &value_p) : SequenceOption(type), value(value_p) {
 	}
 
 public:
