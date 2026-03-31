@@ -25,7 +25,7 @@ public:
 class QualifiedSequenceOption : public SequenceOption {
 public:
 	QualifiedSequenceOption(SequenceInfo type, QualifiedName qualified_name_p)
-	    : SequenceOption(type), qualified_name(qualified_name_p) {
+	    : SequenceOption(type), qualified_name(std::move(qualified_name_p)) {
 	}
 
 public:
