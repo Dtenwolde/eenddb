@@ -103,7 +103,18 @@ static duckdb::unique_ptr<FunctionData> EnableDutchParserBind(ClientContext &con
 	return nullptr;
 }
 
+inline void EenddbScalarFun(DataChunk &args, ExpressionState &state, Vector &result) {
+	auto &name_vector = args.data[0];
+	UnaryExecutor::Execute<string_t, string_t>(name_vector, result, args.size(), [&](string_t name) {
+		return StringVector::AddString(result, "eenddb " + name.GetString() + " 🐥");
+	});
+}
+
+
 static void LoadInternal(ExtensionLoader &loader) {
+	auto eenddb_scalar_function = ScalarFunction("eenddb", {LogicalType::VARCHAR}, LogicalType::VARCHAR, EenddbScalarFun);
+	loader.RegisterFunction(eenddb_scalar_function);
+
 	TableFunction enable_dutch_parser("enable_dutch_parser", {}, EnableDutchParserFunction, EnableDutchParserBind,
 	                                  nullptr);
 	loader.RegisterFunction(enable_dutch_parser);
