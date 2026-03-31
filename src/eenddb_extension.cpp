@@ -110,9 +110,9 @@ inline void EenddbScalarFun(DataChunk &args, ExpressionState &state, Vector &res
 	});
 }
 
-
 static void LoadInternal(ExtensionLoader &loader) {
-	auto eenddb_scalar_function = ScalarFunction("eenddb", {LogicalType::VARCHAR}, LogicalType::VARCHAR, EenddbScalarFun);
+	auto eenddb_scalar_function =
+	    ScalarFunction("eenddb", {LogicalType::VARCHAR}, LogicalType::VARCHAR, EenddbScalarFun);
 	loader.RegisterFunction(eenddb_scalar_function);
 
 	TableFunction enable_dutch_parser("enable_dutch_parser", {}, EnableDutchParserFunction, EnableDutchParserBind,
